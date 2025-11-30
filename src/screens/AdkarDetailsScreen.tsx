@@ -164,47 +164,16 @@ export const AdkarDetailsScreen = () => {
             <Text
               style={[
                 styles.arabicText,
-                { color: colors.text },
+                { color: colors.text, fontFamily: 'Cairo-Bold' },
               ]}
             >
               {dhikr.arabic}
             </Text>
 
-            {/* Transliteration */}
-            <Text
-              style={[styles.transliteration, { color: colors.textSecondary }]}
-            >
-              {dhikr.transliteration}
-            </Text>
-
             {/* Translation */}
-            <Text style={[styles.translation, { color: colors.text }]}>
+            <Text style={[styles.translation, { color: colors.textSecondary }]}>
               {dhikr.translation}
             </Text>
-
-            {/* Reference */}
-            {dhikr.reference && (
-              <Text style={[styles.reference, { color: colors.textSecondary }]}>
-                Reference: {dhikr.reference}
-              </Text>
-            )}
-
-            {/* Benefit */}
-            {dhikr.benefit && (
-              <View
-                style={[
-                  styles.benefitContainer,
-                  { backgroundColor: colors.surface },
-                ]}
-              >
-                <Text style={[styles.benefitLabel, { color: colors.primary }]}>
-                  Benefit:
-                </Text>
-                <Text style={[styles.benefitText, { color: colors.text }]}>
-                  {dhikr.benefit}
-                </Text>
-              </View>
-            )}
 
             {/* Counter Display */}
             <View style={styles.counterDisplayContainer}>
@@ -280,36 +249,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   arabicText: {
-    fontSize: 24,
-    lineHeight: 40,
+    fontSize: 26,
+    lineHeight: 44,
     textAlign: 'right',
-    marginBottom: 12,
-  },
-  transliteration: {
-    ...Typography.body,
-    fontStyle: 'italic',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   translation: {
     ...Typography.bodyLarge,
-    marginBottom: 12,
-  },
-  reference: {
-    ...Typography.caption,
-    marginBottom: 12,
-  },
-  benefitContainer: {
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  benefitLabel: {
-    ...Typography.caption,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  benefitText: {
-    ...Typography.body,
+    marginBottom: 20,
+    lineHeight: 24,
   },
   counterDisplayContainer: {
     alignItems: 'center',
