@@ -196,7 +196,7 @@ export const QuranReaderScreen = () => {
         {/* Bismillah (except for Surah At-Tawba) */}
         {surahNumber !== 9 && (
           <View style={[styles.bismillahContainer, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.bismillahText, { color: colors.text, fontSize: fontSize + 8, fontFamily: 'Scheherazade-Bold' }]}>
+            <Text style={[styles.bismillahText, { color: colors.text, fontSize: fontSize + 8, fontFamily: 'Cairo-Bold' }]}>
               بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
             </Text>
           </View>
@@ -220,7 +220,7 @@ export const QuranReaderScreen = () => {
                   color: colors.text,
                   fontSize: fontSize + 8,
                   lineHeight: (fontSize + 8) * 2,
-                  fontFamily: 'Scheherazade-Regular',
+                  fontFamily: 'Cairo-SemiBold',
                 }
               ]}
             >

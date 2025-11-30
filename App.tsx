@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import * as Font from 'expo-font';
 import { Cairo_400Regular, Cairo_600SemiBold, Cairo_700Bold } from '@expo-google-fonts/cairo';
-import { ScheherazadeNew_400Regular, ScheherazadeNew_700Bold } from '@expo-google-fonts/scheherazade-new';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { useSettingsStore } from './src/store/settingsStore';
 
@@ -18,8 +17,6 @@ export default function App() {
         'Cairo-Regular': Cairo_400Regular,
         'Cairo-SemiBold': Cairo_600SemiBold,
         'Cairo-Bold': Cairo_700Bold,
-        'Scheherazade-Regular': ScheherazadeNew_400Regular,
-        'Scheherazade-Bold': ScheherazadeNew_700Bold,
       });
       setFontsLoaded(true);
     }

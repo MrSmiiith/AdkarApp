@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@expo-google-fonts/cairo": "^0.4.2",
-    "@expo-google-fonts/scheherazade-new": "^0.4.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.0.11",
     "@react-navigation/native": "^7.0.13",
