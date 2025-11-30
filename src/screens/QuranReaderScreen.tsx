@@ -131,6 +131,9 @@ export const QuranReaderScreen = () => {
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // Extract scroll position immediately (before setTimeout)
+    const scrollY = event.nativeEvent.contentOffset.y;
+
     // Clear previous timeout
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
@@ -138,18 +141,22 @@ export const QuranReaderScreen = () => {
 
     // Set new timeout to save position after user stops scrolling
     scrollTimeoutRef.current = setTimeout(() => {
-      const scrollY = event.nativeEvent.contentOffset.y;
-
       // Find which ayah is currently visible
       let visibleAyah = 1;
+      let maxAyahFound = 1;
+
       Object.entries(ayahRefs.current).forEach(([ayahNum, ref]) => {
         if (ref) {
           ref.measureLayout(
             // @ts-ignore
             scrollViewRef.current?.getInnerViewNode(),
             (x, y) => {
-              if (y <= scrollY + 200 && y >= scrollY) {
-                visibleAyah = parseInt(ayahNum);
+              const ayahNumber = parseInt(ayahNum);
+              // If ayah is above or at the scroll position, it could be the visible one
+              if (y <= scrollY + 100) {
+                if (ayahNumber > maxAyahFound) {
+                  maxAyahFound = ayahNumber;
+                }
               }
             },
             () => {}
@@ -157,8 +164,10 @@ export const QuranReaderScreen = () => {
         }
       });
 
-      // Save reading progress
-      updateReadingProgress(surahNumber, visibleAyah);
+      // Save reading progress with the ayah that's most visible
+      if (maxAyahFound > 0) {
+        updateReadingProgress(surahNumber, maxAyahFound);
+      }
     }, 1000); // Save after 1 second of no scrolling
   };
 
