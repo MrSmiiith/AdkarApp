@@ -206,53 +206,62 @@ export const AdkarDetailsScreen = () => {
               </View>
             )}
 
-            {/* Counter */}
-            <View style={styles.counterContainer}>
-              <View style={styles.counterInfo}>
-                <Text style={[styles.counterText, { color: colors.text, fontSize: 32 }]}>
-                  {count} / {dhikr.repetitions}
+            {/* Counter Display */}
+            <View style={styles.counterDisplayContainer}>
+              <View style={styles.counterCircle}>
+                <Text style={[styles.counterLargeNumber, { color: colors.primary }]}>
+                  {count}
                 </Text>
-                {isCompleted && (
-                  <Text style={[styles.completedText, { color: colors.success }]}>
-                    ✓ Completed - Auto-reset in 10min
-                  </Text>
-                )}
+                <Text style={[styles.counterSmallText, { color: colors.textSecondary }]}>
+                  of {dhikr.repetitions}
+                </Text>
               </View>
+              {isCompleted && (
+                <View style={[styles.completedBadge, { backgroundColor: colors.success + '20' }]}>
+                  <Text style={[styles.completedText, { color: colors.success }]}>
+                    ✓ Completed
+                  </Text>
+                  <Text style={[styles.completedSubtext, { color: colors.textSecondary }]}>
+                    Auto-reset in 10min
+                  </Text>
+                </View>
+              )}
+            </View>
 
-              <View style={styles.counterButtons}>
+            {/* Counter Buttons */}
+            <View style={styles.counterButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.resetButton,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                ]}
+                onPress={() => resetCounter(dhikr.id)}
+              >
+                <Text style={[styles.resetButtonText, { color: colors.text }]}>
+                  Reset
+                </Text>
+              </TouchableOpacity>
+
+              {!isCompleted && (
                 <TouchableOpacity
                   style={[
-                    styles.counterButton,
-                    { backgroundColor: colors.surface },
+                    styles.countButton,
+                    { backgroundColor: colors.primary },
+                    isCurrent && { borderWidth: 3, borderColor: '#FFD700' },
                   ]}
-                  onPress={() => resetCounter(dhikr.id)}
+                  onPress={() =>
+                    incrementCounter(dhikr.id, dhikr.repetitions, index)
+                  }
+                  activeOpacity={0.7}
                 >
-                  <Text style={[styles.buttonText, { color: colors.text }]}>
-                    Reset
+                  <Text style={[styles.countButtonText, { color: '#FFFFFF' }]}>
+                    TAP TO COUNT
+                  </Text>
+                  <Text style={[styles.countButtonSubtext, { color: 'rgba(255,255,255,0.9)' }]}>
+                    {dhikr.repetitions - count} remaining
                   </Text>
                 </TouchableOpacity>
-
-                {!isCompleted && (
-                  <TouchableOpacity
-                    style={[
-                      styles.largeTapButton,
-                      { backgroundColor: colors.primary },
-                      isCurrent && { backgroundColor: colors.primary, borderWidth: 3, borderColor: '#FFD700' },
-                    ]}
-                    onPress={() =>
-                      incrementCounter(dhikr.id, dhikr.repetitions, index)
-                    }
-                    activeOpacity={0.7}
-                  >
-                    <Text style={[styles.largeTapText, { color: '#FFFFFF' }]}>
-                      TAP TO COUNT
-                    </Text>
-                    <Text style={[styles.largeTapSubtext, { color: 'rgba(255,255,255,0.9)' }]}>
-                      {dhikr.repetitions - count} remaining
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
+              )}
             </View>
           </View>
         );
@@ -302,49 +311,72 @@ const styles = StyleSheet.create({
   benefitText: {
     ...Typography.body,
   },
-  counterContainer: {
-    marginTop: 8,
-  },
-  counterInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  counterDisplayContainer: {
     alignItems: 'center',
+    marginVertical: 16,
+  },
+  counterCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: '#0D5C3D',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 12,
   },
-  counterText: {
-    ...Typography.h3,
+  counterLargeNumber: {
+    fontSize: 48,
+    fontWeight: '700',
+  },
+  counterSmallText: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  completedBadge: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    alignItems: 'center',
   },
   completedText: {
-    ...Typography.body,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  completedSubtext: {
+    fontSize: 12,
+    marginTop: 2,
   },
   counterButtons: {
     flexDirection: 'row',
     gap: 12,
+    marginTop: 8,
   },
-  counterButton: {
-    flex: 1,
-    paddingVertical: 14,
+  resetButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 8,
-    alignItems: 'center',
+    borderWidth: 1,
   },
-  largeTapButton: {
-    flex: 2,
-    paddingVertical: 28,
+  resetButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  countButton: {
+    flex: 1,
+    paddingVertical: 20,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 80,
   },
-  largeTapText: {
-    fontSize: 20,
+  countButtonText: {
+    fontSize: 18,
     fontWeight: '700',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
-  largeTapSubtext: {
-    fontSize: 14,
-    marginTop: 6,
-    fontWeight: '500',
+  countButtonSubtext: {
+    fontSize: 13,
+    marginTop: 4,
   },
   buttonText: {
     ...Typography.button,

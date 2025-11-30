@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   useColorScheme,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -26,7 +28,7 @@ export const QuranReaderScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<QuranReaderRouteProp>();
   const { theme, fontSize } = useSettingsStore();
-  const { updateReadingProgress, bookmarks, addBookmark, removeBookmark } = useQuranStore();
+  const { updateReadingProgress, bookmarks, addBookmark, removeBookmark, readingProgress } = useQuranStore();
   const { t } = useTranslation();
   const systemTheme = useColorScheme();
   const colors = getThemeColors(theme, systemTheme);
@@ -35,6 +37,10 @@ export const QuranReaderScreen = () => {
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const scrollViewRef = useRef<ScrollView>(null);
+  const ayahRefs = useRef<{ [key: number]: View | null }>({});
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const surahNumber = route.params?.surah || 1;
 
@@ -85,6 +91,16 @@ export const QuranReaderScreen = () => {
     loadSurah();
   }, [surahNumber]);
 
+  // Scroll to last read ayah after ayahs are loaded
+  useEffect(() => {
+    if (ayahs.length > 0 && readingProgress?.surah === surahNumber && readingProgress.ayah > 1) {
+      // Delay to ensure layout is complete
+      setTimeout(() => {
+        scrollToAyah(readingProgress.ayah);
+      }, 500);
+    }
+  }, [ayahs]);
+
   const loadSurah = async () => {
     try {
       setLoading(true);
@@ -92,15 +108,58 @@ export const QuranReaderScreen = () => {
       const data = await fetchSurah(surahNumber);
       setSurah(data.surah);
       setAyahs(data.ayahs);
-
-      // Update reading progress
-      updateReadingProgress(surahNumber, 1);
     } catch (err) {
       console.error('Error loading surah:', err);
       setError('Failed to load Surah. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const scrollToAyah = (ayahNumber: number) => {
+    const ayahRef = ayahRefs.current[ayahNumber];
+    if (ayahRef && scrollViewRef.current) {
+      ayahRef.measureLayout(
+        // @ts-ignore
+        scrollViewRef.current.getInnerViewNode(),
+        (x, y) => {
+          scrollViewRef.current?.scrollTo({ y: y - 100, animated: true });
+        },
+        () => {}
+      );
+    }
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // Clear previous timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    // Set new timeout to save position after user stops scrolling
+    scrollTimeoutRef.current = setTimeout(() => {
+      const scrollY = event.nativeEvent.contentOffset.y;
+
+      // Find which ayah is currently visible
+      let visibleAyah = 1;
+      Object.entries(ayahRefs.current).forEach(([ayahNum, ref]) => {
+        if (ref) {
+          ref.measureLayout(
+            // @ts-ignore
+            scrollViewRef.current?.getInnerViewNode(),
+            (x, y) => {
+              if (y <= scrollY + 200 && y >= scrollY) {
+                visibleAyah = parseInt(ayahNum);
+              }
+            },
+            () => {}
+          );
+        }
+      });
+
+      // Save reading progress
+      updateReadingProgress(surahNumber, visibleAyah);
+    }, 1000); // Save after 1 second of no scrolling
   };
 
   if (loading) {
@@ -169,9 +228,12 @@ export const QuranReaderScreen = () => {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
       >
         {/* Surah Header Card */}
         <View style={[styles.surahCard, { backgroundColor: colors.primary }]}>
@@ -206,6 +268,7 @@ export const QuranReaderScreen = () => {
         {ayahs.map((ayah) => (
           <View
             key={ayah.number}
+            ref={(ref) => { ayahRefs.current[ayah.numberInSurah] = ref; }}
             style={[styles.ayahContainer, { borderBottomColor: colors.border }]}
           >
             <View style={styles.ayahNumberBadge}>
