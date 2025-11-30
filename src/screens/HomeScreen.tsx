@@ -192,6 +192,7 @@ export const HomeScreen = () => {
                 <View style={styles.prayerCardHeader}>
                   <Icon name="clock" size={28} color="#FFFFFF" />
                   <Text style={styles.prayerLabel}>{t('prayerTimes')}</Text>
+                  <Icon name="chevron-right" size={20} color="rgba(255,255,255,0.7)" style={{ marginLeft: 'auto' }} />
                 </View>
                 <View style={styles.prayerCardContent}>
                   <Text style={styles.prayerName}>
@@ -204,6 +205,7 @@ export const HomeScreen = () => {
                     {formatTimeRemaining(nextPrayer.time)}
                   </Text>
                 </View>
+                <Text style={styles.tapHint}>Tap to view all times</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -218,9 +220,12 @@ export const HomeScreen = () => {
               }}
             >
               <View style={[styles.prayerTimesCard, { backgroundColor: colors.card }]}>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  {t('prayerTimes')}
-                </Text>
+                <View style={styles.cardTitleContainer}>
+                  <Text style={[styles.cardTitle, { color: colors.text }]}>
+                    {t('prayerTimes')}
+                  </Text>
+                  <Icon name="chevron-right" size={20} color={colors.textSecondary} />
+                </View>
                 <PrayerTimeRow
                   name={t('fajr')}
                   time={prayerTimes.fajr}
@@ -251,6 +256,9 @@ export const HomeScreen = () => {
                   colors={colors}
                   iconName="moon"
                 />
+                <Text style={[styles.tapHintSecondary, { color: colors.textSecondary }]}>
+                  Tap to view more dates
+                </Text>
               </View>
             </TouchableOpacity>
           )}
@@ -529,6 +537,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 8,
   },
+  tapHint: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 12,
+    fontWeight: '500',
+  },
   prayerTimesCard: {
     width: width - 32,
     padding: 20,
@@ -540,9 +555,21 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  cardTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   cardTitle: {
     ...Typography.h3,
-    marginBottom: 16,
+    marginBottom: 0,
+  },
+  tapHintSecondary: {
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 12,
+    fontWeight: '500',
   },
   prayerRow: {
     flexDirection: 'row',

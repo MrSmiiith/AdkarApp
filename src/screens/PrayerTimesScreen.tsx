@@ -43,7 +43,7 @@ export const PrayerTimesScreen = () => {
 
     const prayers: { [key: string]: PrayerTimes } = {};
     days.forEach(day => {
-      const dayPrayers = calculatePrayerTimes(location.latitude, location.longitude, day);
+      const dayPrayers = calculatePrayerTimes(location, day);
       prayers[format(day, 'yyyy-MM-dd')] = dayPrayers;
     });
 
@@ -56,7 +56,7 @@ export const PrayerTimesScreen = () => {
     const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
     if (isToday && prayerTimes) return prayerTimes;
 
-    return calculatePrayerTimes(location.latitude, location.longitude, selectedDate);
+    return calculatePrayerTimes(location, selectedDate);
   };
 
   const selectedDayPrayers = getSelectedDayPrayers();
@@ -245,11 +245,7 @@ export const PrayerTimesScreen = () => {
                 </Text>
                 {[0, 1, 2, 3, 4, 5, 6].map(dayOffset => {
                   const date = addDays(new Date(), dayOffset);
-                  const dayPrayers = calculatePrayerTimes(
-                    location.latitude,
-                    location.longitude,
-                    date
-                  );
+                  const dayPrayers = calculatePrayerTimes(location, date);
                   return (
                     <TouchableOpacity
                       key={dayOffset}
