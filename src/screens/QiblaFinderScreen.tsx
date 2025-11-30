@@ -191,7 +191,7 @@ export const QiblaFinderScreen = () => {
   // Loading
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.text }]}>{t('findingQibla')}</Text>
@@ -203,7 +203,7 @@ export const QiblaFinderScreen = () => {
   // Error
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
         <View style={styles.centerContent}>
           <Icon name="compass" size={60} color={colors.textSecondary} />
           <Text style={[styles.errorText, { color: colors.text, marginTop: 20 }]}>
@@ -215,7 +215,7 @@ export const QiblaFinderScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['bottom']}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         {/* Title */}
         <View style={styles.header}>

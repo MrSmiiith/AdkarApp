@@ -95,7 +95,7 @@ export const SettingsScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['bottom']}>
       <ScrollView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
