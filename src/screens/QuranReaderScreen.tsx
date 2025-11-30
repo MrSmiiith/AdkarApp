@@ -39,8 +39,10 @@ export const QuranReaderScreen = () => {
   const [error, setError] = useState<string | null>(null);
 
   const scrollViewRef = useRef<ScrollView>(null);
-  const ayahRefs = useRef<{ [key: number]: View | null }>({});
+  const ayahPositions = useRef<{ [key: number]: number }>({});
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const contentHeight = useRef<number>(0);
+  const scrollViewHeight = useRef<number>(0);
 
   const surahNumber = route.params?.surah || 1;
 
@@ -91,13 +93,13 @@ export const QuranReaderScreen = () => {
     loadSurah();
   }, [surahNumber]);
 
-  // Scroll to last read ayah after ayahs are loaded
+  // Scroll to last read ayah after ayahs are loaded and positioned
   useEffect(() => {
     if (ayahs.length > 0 && readingProgress?.surah === surahNumber && readingProgress.ayah > 1) {
-      // Delay to ensure layout is complete
+      // Delay to ensure all layouts are complete
       setTimeout(() => {
         scrollToAyah(readingProgress.ayah);
-      }, 500);
+      }, 800);
     }
   }, [ayahs]);
 
@@ -117,16 +119,9 @@ export const QuranReaderScreen = () => {
   };
 
   const scrollToAyah = (ayahNumber: number) => {
-    const ayahRef = ayahRefs.current[ayahNumber];
-    if (ayahRef && scrollViewRef.current) {
-      ayahRef.measureLayout(
-        // @ts-ignore
-        scrollViewRef.current.getInnerViewNode(),
-        (x, y) => {
-          scrollViewRef.current?.scrollTo({ y: y - 100, animated: true });
-        },
-        () => {}
-      );
+    const ayahY = ayahPositions.current[ayahNumber];
+    if (ayahY !== undefined && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: ayahY - 100, animated: true });
     }
   };
 
@@ -141,34 +136,30 @@ export const QuranReaderScreen = () => {
 
     // Set new timeout to save position after user stops scrolling
     scrollTimeoutRef.current = setTimeout(() => {
-      // Find which ayah is currently visible
+      // Find which ayah is currently visible based on stored positions
       let visibleAyah = 1;
-      let maxAyahFound = 1;
+      let closestDistance = Infinity;
 
-      Object.entries(ayahRefs.current).forEach(([ayahNum, ref]) => {
-        if (ref) {
-          ref.measureLayout(
-            // @ts-ignore
-            scrollViewRef.current?.getInnerViewNode(),
-            (x, y) => {
-              const ayahNumber = parseInt(ayahNum);
-              // If ayah is above or at the scroll position, it could be the visible one
-              if (y <= scrollY + 100) {
-                if (ayahNumber > maxAyahFound) {
-                  maxAyahFound = ayahNumber;
-                }
-              }
-            },
-            () => {}
-          );
+      Object.entries(ayahPositions.current).forEach(([ayahNum, yPosition]) => {
+        const ayahNumber = parseInt(ayahNum);
+        const distance = Math.abs(yPosition - scrollY);
+
+        // Find the ayah closest to current scroll position
+        if (yPosition <= scrollY + 200 && distance < closestDistance) {
+          closestDistance = distance;
+          visibleAyah = ayahNumber;
         }
       });
 
-      // Save reading progress with the ayah that's most visible
-      if (maxAyahFound > 0) {
-        updateReadingProgress(surahNumber, maxAyahFound);
+      // Save reading progress with the visible ayah
+      if (visibleAyah > 0) {
+        updateReadingProgress(surahNumber, visibleAyah);
       }
     }, 1000); // Save after 1 second of no scrolling
+  };
+
+  const handleAyahLayout = (ayahNumber: number, y: number) => {
+    ayahPositions.current[ayahNumber] = y;
   };
 
   if (loading) {
@@ -277,7 +268,10 @@ export const QuranReaderScreen = () => {
         {ayahs.map((ayah) => (
           <View
             key={ayah.number}
-            ref={(ref) => { ayahRefs.current[ayah.numberInSurah] = ref; }}
+            onLayout={(event) => {
+              const { y } = event.nativeEvent.layout;
+              handleAyahLayout(ayah.numberInSurah, y);
+            }}
             style={[styles.ayahContainer, { borderBottomColor: colors.border }]}
           >
             <View style={styles.ayahNumberBadge}>
