@@ -1,20 +1,39 @@
+import React, { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useColorScheme } from 'react-native';
+import * as Font from 'expo-font';
+import { Cairo_400Regular, Cairo_600SemiBold, Cairo_700Bold } from '@expo-google-fonts/cairo';
+import { AppNavigator } from './src/navigation/AppNavigator';
+import { useSettingsStore } from './src/store/settingsStore';
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const systemTheme = useColorScheme();
+  const { theme } = useSettingsStore();
+
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        'Cairo-Regular': Cairo_400Regular,
+        'Cairo-SemiBold': Cairo_600SemiBold,
+        'Cairo-Bold': Cairo_700Bold,
+      });
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  // Determine effective theme (auto uses system theme)
+  const effectiveTheme = theme === 'auto' ? (systemTheme || 'light') : theme;
+
+  if (!fontsLoaded) {
+    return null; // Or a loading screen
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style={effectiveTheme === 'dark' ? 'light' : 'dark'} />
+      <AppNavigator />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
