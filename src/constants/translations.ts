@@ -60,10 +60,19 @@ export const translations = {
     madeLove: 'Made with ❤ for the Muslim Ummah',
 
     // Qibla Screen
+    qiblaFinder: 'Qibla Finder',
     qiblaDirection: 'Qibla Direction',
-    rotatePhone: 'Rotate your phone until the arrow points north',
+    rotateArrow: 'Rotate until the arrow points up',
     kaaba: 'Kaaba',
-    mecca: 'Mecca, Saudi Arabia',
+    direction: 'Direction',
+    distance: 'Distance',
+    distanceToKaaba: 'Distance to Kaaba',
+    currentHeading: 'Current Heading',
+    alignedWithQibla: 'Aligned with Qibla',
+    findingQibla: 'Finding Qibla...',
+    magnetometerNotAvailable: 'Magnetometer not available on this device',
+    locationPermissionRequired: 'Location permission required',
+    failedToInitialize: 'Failed to initialize',
   },
   ar: {
     // Common
@@ -126,10 +135,19 @@ export const translations = {
     madeLove: 'صُنع بحب للأمة الإسلامية',
 
     // Qibla Screen
+    qiblaFinder: 'محدد القبلة',
     qiblaDirection: 'اتجاه القبلة',
-    rotatePhone: 'قم بتدوير هاتفك حتى يشير السهم إلى الشمال',
+    rotateArrow: 'قم بالتدوير حتى يشير السهم للأعلى',
     kaaba: 'الكعبة',
-    mecca: 'مكة المكرمة، السعودية',
+    direction: 'الاتجاه',
+    distance: 'المسافة',
+    distanceToKaaba: 'المسافة إلى الكعبة',
+    currentHeading: 'الاتجاه الحالي',
+    alignedWithQibla: 'متجه نحو القبلة',
+    findingQibla: 'جاري تحديد القبلة...',
+    magnetometerNotAvailable: 'جهاز الاستشعار غير متوفر على هذا الجهاز',
+    locationPermissionRequired: 'يجب السماح بالوصول إلى الموقع',
+    failedToInitialize: 'فشل في التهيئة',
   },
 };
 

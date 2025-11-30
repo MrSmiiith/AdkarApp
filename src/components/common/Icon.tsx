@@ -51,6 +51,8 @@ const ICON_MAP: { [key: string]: { library: 'MaterialCommunityIcons' | 'Ionicons
   menu: { library: 'Ionicons', icon: 'menu' },
   'dots-vertical': { library: 'Ionicons', icon: 'ellipsis-vertical' },
   'dots-horizontal': { library: 'Ionicons', icon: 'ellipsis-horizontal' },
+  info: { library: 'Ionicons', icon: 'information-circle' },
+  calendar: { library: 'Ionicons', icon: 'calendar' },
 
   // Islamic
   mosque: { library: 'MaterialCommunityIcons', icon: 'mosque' },

@@ -16,6 +16,7 @@ import { AdkarScreen } from '../screens/AdkarScreen';
 import { AdkarDetailsScreen } from '../screens/AdkarDetailsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { PrayerTimesScreen } from '../screens/PrayerTimesScreen';
+import { QiblaFinderScreen } from '../screens/QiblaFinderScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,6 +39,8 @@ function TabNavigator() {
             iconName = 'book-open';
           } else if (route.name === 'Adkar') {
             iconName = focused ? 'moon' : 'moon-outline';
+          } else if (route.name === 'Qibla') {
+            iconName = 'compass';
           } else if (route.name === 'Settings') {
             iconName = 'settings';
           }
@@ -66,6 +69,7 @@ function TabNavigator() {
       />
       <Tab.Screen name="Quran" component={QuranScreen} options={{ headerShown: false, title: t('quran') }} />
       <Tab.Screen name="Adkar" component={AdkarScreen} options={{ headerShown: false, title: t('adkar') }} />
+      <Tab.Screen name="Qibla" component={QiblaFinderScreen} options={{ headerShown: false, title: t('qibla') }} />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
