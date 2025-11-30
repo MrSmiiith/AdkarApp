@@ -53,27 +53,21 @@ function TabNavigator() {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
         },
-        headerStyle: {
-          backgroundColor: colors.primary,
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: '600',
-        },
+        headerShown: false,
       })}
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{ headerShown: false, title: t('home') }}
+        options={{ title: t('home') }}
       />
-      <Tab.Screen name="Quran" component={QuranScreen} options={{ headerShown: false, title: t('quran') }} />
-      <Tab.Screen name="Adkar" component={AdkarScreen} options={{ headerShown: false, title: t('adkar') }} />
-      <Tab.Screen name="Qibla" component={QiblaFinderScreen} options={{ headerShown: false, title: t('qibla') }} />
+      <Tab.Screen name="Quran" component={QuranScreen} options={{ title: t('quran') }} />
+      <Tab.Screen name="Adkar" component={AdkarScreen} options={{ title: t('adkar') }} />
+      <Tab.Screen name="Qibla" component={QiblaFinderScreen} options={{ title: t('qibla') }} />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ headerShown: false, title: t('settings') }}
+        options={{ title: t('settings') }}
       />
     </Tab.Navigator>
   );
