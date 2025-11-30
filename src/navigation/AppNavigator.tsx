@@ -15,6 +15,7 @@ import { QuranReaderScreen } from '../screens/QuranReaderScreen';
 import { AdkarScreen } from '../screens/AdkarScreen';
 import { AdkarDetailsScreen } from '../screens/AdkarDetailsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { PrayerTimesScreen } from '../screens/PrayerTimesScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -105,6 +106,11 @@ export function AppNavigator() {
         <Stack.Screen
           name="QuranReader"
           component={QuranReaderScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PrayerTimes"
+          component={PrayerTimesScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

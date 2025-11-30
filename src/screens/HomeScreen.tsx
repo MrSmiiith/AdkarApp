@@ -181,62 +181,78 @@ export const HomeScreen = () => {
 
           {/* Next Prayer Card */}
           {nextPrayer && (
-            <View style={[styles.prayerCard, { backgroundColor: colors.primary }]}>
-              <View style={styles.prayerCardHeader}>
-                <Icon name="clock" size={28} color="#FFFFFF" />
-                <Text style={styles.prayerLabel}>{t('prayerTimes')}</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                // @ts-ignore
+                navigation.navigate('PrayerTimes');
+              }}
+            >
+              <View style={[styles.prayerCard, { backgroundColor: colors.primary }]}>
+                <View style={styles.prayerCardHeader}>
+                  <Icon name="clock" size={28} color="#FFFFFF" />
+                  <Text style={styles.prayerLabel}>{t('prayerTimes')}</Text>
+                </View>
+                <View style={styles.prayerCardContent}>
+                  <Text style={styles.prayerName}>
+                    {t(nextPrayer.name.toLowerCase() as any)}
+                  </Text>
+                  <Text style={styles.prayerTime}>
+                    {formatPrayerTime(nextPrayer.time)}
+                  </Text>
+                  <Text style={styles.timeRemaining}>
+                    {formatTimeRemaining(nextPrayer.time)}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.prayerCardContent}>
-                <Text style={styles.prayerName}>
-                  {t(nextPrayer.name.toLowerCase() as any)}
-                </Text>
-                <Text style={styles.prayerTime}>
-                  {formatPrayerTime(nextPrayer.time)}
-                </Text>
-                <Text style={styles.timeRemaining}>
-                  {formatTimeRemaining(nextPrayer.time)}
-                </Text>
-              </View>
-            </View>
+            </TouchableOpacity>
           )}
 
           {/* Prayer Times Summary */}
           {prayerTimes && (
-            <View style={[styles.prayerTimesCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.cardTitle, { color: colors.text }]}>
-                {t('prayerTimes')}
-              </Text>
-              <PrayerTimeRow
-                name={t('fajr')}
-                time={prayerTimes.fajr}
-                colors={colors}
-                iconName="sunrise"
-              />
-              <PrayerTimeRow
-                name={t('dhuhr')}
-                time={prayerTimes.dhuhr}
-                colors={colors}
-                iconName="time"
-              />
-              <PrayerTimeRow
-                name={t('asr')}
-                time={prayerTimes.asr}
-                colors={colors}
-                iconName="time"
-              />
-              <PrayerTimeRow
-                name={t('maghrib')}
-                time={prayerTimes.maghrib}
-                colors={colors}
-                iconName="time"
-              />
-              <PrayerTimeRow
-                name={t('isha')}
-                time={prayerTimes.isha}
-                colors={colors}
-                iconName="moon"
-              />
-            </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                // @ts-ignore
+                navigation.navigate('PrayerTimes');
+              }}
+            >
+              <View style={[styles.prayerTimesCard, { backgroundColor: colors.card }]}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  {t('prayerTimes')}
+                </Text>
+                <PrayerTimeRow
+                  name={t('fajr')}
+                  time={prayerTimes.fajr}
+                  colors={colors}
+                  iconName="sunrise"
+                />
+                <PrayerTimeRow
+                  name={t('dhuhr')}
+                  time={prayerTimes.dhuhr}
+                  colors={colors}
+                  iconName="time"
+                />
+                <PrayerTimeRow
+                  name={t('asr')}
+                  time={prayerTimes.asr}
+                  colors={colors}
+                  iconName="time"
+                />
+                <PrayerTimeRow
+                  name={t('maghrib')}
+                  time={prayerTimes.maghrib}
+                  colors={colors}
+                  iconName="time"
+                />
+                <PrayerTimeRow
+                  name={t('isha')}
+                  time={prayerTimes.isha}
+                  colors={colors}
+                  iconName="moon"
+                />
+              </View>
+            </TouchableOpacity>
           )}
         </Animated.View>
       </ScrollView>
@@ -384,8 +400,8 @@ const styles = StyleSheet.create({
   upcomingEventCard: {
     marginHorizontal: 16,
     marginBottom: 16,
-    padding: 20,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
