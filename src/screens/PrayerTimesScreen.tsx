@@ -8,6 +8,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { usePrayerStore } from '../store/prayerStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { getThemeColors } from '../utils/themeHelpers';
@@ -19,6 +20,7 @@ import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval } from 'da
 import { PrayerTimes } from '../types';
 
 export const PrayerTimesScreen = () => {
+  const navigation = useNavigation();
   const { theme } = useSettingsStore();
   const { prayerTimes, location } = usePrayerStore();
   const systemTheme = useColorScheme();
@@ -76,10 +78,19 @@ export const PrayerTimesScreen = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Prayer Times</Text>
-        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
-          {getHijriDate(selectedDate)}
-        </Text>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
+          <Icon name="chevron-left" size={28} color={colors.text} />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Prayer Times</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+            {getHijriDate(selectedDate)}
+          </Text>
+        </View>
+        <View style={styles.headerSpacer} />
       </View>
 
       {/* View Mode Selector */}
@@ -388,9 +399,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
     paddingTop: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  backButton: {
+    padding: 4,
+    marginRight: 8,
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerSpacer: {
+    width: 40,
   },
   headerTitle: {
     ...Typography.h2,
