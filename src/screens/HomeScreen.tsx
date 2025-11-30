@@ -14,12 +14,13 @@ import { useNavigation } from '@react-navigation/native';
 import { usePrayerStore } from '../store/prayerStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { Typography } from '../constants/typography';
-import { formatPrayerTime, formatTimeRemaining, getHijriDate } from '../utils/dateHelpers';
+import { formatPrayerTime, formatTimeRemaining, getHijriDate, formatGregorianDate } from '../utils/dateHelpers';
 import { getNextPrayer } from '../services/prayerService';
 import { getThemeColors } from '../utils/themeHelpers';
 import { useTranslation } from '../hooks/useTranslation';
 import { Logo } from '../components/common/Logo';
 import { Icon } from '../components/common/Icon';
+import { getUpcomingEvent, getTodayEvent, getDaysUntilEvent } from '../utils/islamicEvents';
 import * as Location from 'expo-location';
 
 const { width } = Dimensions.get('window');
@@ -69,6 +70,8 @@ export const HomeScreen = () => {
   };
 
   const nextPrayer = prayerTimes ? getNextPrayer(prayerTimes) : null;
+  const todayEvent = getTodayEvent();
+  const upcomingEvent = getUpcomingEvent();
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -76,7 +79,7 @@ export const HomeScreen = () => {
         style={[styles.container, { backgroundColor: colors.background }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Header with Dates */}
         <Animated.View
           style={[
             styles.header,
@@ -87,10 +90,38 @@ export const HomeScreen = () => {
           <Text style={[styles.welcomeText, { color: colors.text }]}>
             {t('welcomeBack')}
           </Text>
-          <Text style={[styles.date, { color: colors.textSecondary }]}>
-            {getHijriDate()}
+
+          {/* Gregorian Date */}
+          <Text style={[styles.gregorianDate, { color: colors.textSecondary }]}>
+            {formatGregorianDate()}
           </Text>
+
+          {/* Hijri Date */}
+          <View style={[styles.hijriDateContainer, { backgroundColor: colors.primary + '20' }]}>
+            <Icon name="moon" size={16} color={colors.primary} style={{ marginRight: 8 }} />
+            <Text style={[styles.hijriDate, { color: colors.primary }]}>
+              {getHijriDate()}
+            </Text>
+          </View>
         </Animated.View>
+
+        {/* Today's Islamic Event (if any) */}
+        {todayEvent && (
+          <Animated.View
+            style={[
+              styles.eventCard,
+              { backgroundColor: colors.success, opacity: fadeAnim },
+            ]}
+          >
+            <View style={styles.eventHeader}>
+              <Icon name="star" size={24} color="#FFFFFF" />
+              <Text style={styles.eventTitle}>Today's Event</Text>
+            </View>
+            <Text style={styles.eventName}>{todayEvent.name}</Text>
+            <Text style={styles.eventNameAr}>{todayEvent.nameAr}</Text>
+            <Text style={styles.eventDescription}>{todayEvent.description}</Text>
+          </Animated.View>
+        )}
 
         {/* Feature Cards - Full Screen Width */}
         <Animated.View
@@ -125,6 +156,28 @@ export const HomeScreen = () => {
             colors={colors}
           />
 
+          {/* Upcoming Islamic Event */}
+          {upcomingEvent && !todayEvent && (
+            <View style={[styles.upcomingEventCard, { backgroundColor: colors.card }]}>
+              <View style={styles.upcomingEventHeader}>
+                <Icon name="calendar" size={20} color={colors.primary} />
+                <Text style={[styles.upcomingEventTitle, { color: colors.text }]}>
+                  Upcoming Event
+                </Text>
+              </View>
+              <Text style={[styles.upcomingEventName, { color: colors.text }]}>
+                {upcomingEvent.name}
+              </Text>
+              <Text style={[styles.upcomingEventNameAr, { color: colors.textSecondary }]}>
+                {upcomingEvent.nameAr}
+              </Text>
+              <View style={styles.upcomingEventFooter}>
+                <Text style={[styles.upcomingEventDays, { color: colors.primary }]}>
+                  in {getDaysUntilEvent(upcomingEvent)} days
+                </Text>
+              </View>
+            </View>
+          )}
 
           {/* Next Prayer Card */}
           {nextPrayer && (
@@ -269,6 +322,109 @@ const styles = StyleSheet.create({
   date: {
     ...Typography.caption,
     marginTop: 4,
+  },
+  gregorianDate: {
+    ...Typography.caption,
+    marginTop: 8,
+  },
+  hijriDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 12,
+  },
+  hijriDate: {
+    ...Typography.body,
+    fontWeight: '600',
+  },
+  eventCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  eventHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  eventTitle: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  eventName: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  eventNameAr: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 18,
+    fontWeight: '600',
+    fontFamily: 'Cairo-Bold',
+    textAlign: 'right',
+    marginBottom: 8,
+  },
+  eventDescription: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 14,
+  },
+  upcomingEventCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 20,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  upcomingEventHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  upcomingEventTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  upcomingEventName: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  upcomingEventNameAr: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'Cairo-SemiBold',
+    textAlign: 'right',
+    marginBottom: 8,
+  },
+  upcomingEventFooter: {
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+  },
+  upcomingEventDays: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   cardsContainer: {
     paddingHorizontal: 16,
