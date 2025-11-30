@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Vibration,
+  useColorScheme,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useSettingsStore } from '../store/settingsStore';
@@ -13,35 +15,141 @@ import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { ALL_ADKAR } from '../database/data/adkar';
 import { Dhikr } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface CounterState {
+  count: number;
+  completedAt?: number;
+}
 
 export const AdkarDetailsScreen = () => {
   const route = useRoute();
   const { categoryId } = route.params as { categoryId: string };
   const { theme } = useSettingsStore();
-  const colors = getThemeColors(theme);
+  const systemTheme = useColorScheme();
+  const colors = getThemeColors(theme, systemTheme);
+  const scrollRef = useRef<ScrollView>(null);
 
   const adhkar = ALL_ADKAR[categoryId as keyof typeof ALL_ADKAR] || [];
-  const [counters, setCounters] = useState<{ [key: string]: number }>({});
+  const [counters, setCounters] = useState<{ [key: string]: CounterState }>({});
+  const [currentDhikrIndex, setCurrentDhikrIndex] = useState(0);
+  const resetTimersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
-  const incrementCounter = (dhikrId: string, maxCount: number) => {
+  // Load saved counters from AsyncStorage
+  useEffect(() => {
+    loadCounters();
+  }, [categoryId]);
+
+  // Auto-reset completed dhikrs after 10 minutes
+  useEffect(() => {
+    Object.entries(counters).forEach(([dhikrId, state]) => {
+      if (state.completedAt) {
+        const timeElapsed = Date.now() - state.completedAt;
+        const timeRemaining = 10 * 60 * 1000 - timeElapsed; // 10 minutes
+
+        if (timeRemaining > 0) {
+          // Set timer for remaining time
+          resetTimersRef.current[dhikrId] = setTimeout(() => {
+            resetAndAdvance(dhikrId);
+          }, timeRemaining);
+        } else {
+          // Already past 10 minutes, reset immediately
+          resetAndAdvance(dhikrId);
+        }
+      }
+    });
+
+    return () => {
+      // Clear all timers on unmount
+      Object.values(resetTimersRef.current).forEach(clearTimeout);
+    };
+  }, [counters]);
+
+  const loadCounters = async () => {
+    try {
+      const saved = await AsyncStorage.getItem(`adkar_counters_${categoryId}`);
+      if (saved) {
+        setCounters(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error loading counters:', error);
+    }
+  };
+
+  const saveCounters = async (newCounters: { [key: string]: CounterState }) => {
+    try {
+      await AsyncStorage.setItem(`adkar_counters_${categoryId}`, JSON.stringify(newCounters));
+    } catch (error) {
+      console.error('Error saving counters:', error);
+    }
+  };
+
+  const incrementCounter = (dhikrId: string, maxCount: number, dhikrIndex: number) => {
     setCounters((prev) => {
-      const currentCount = prev[dhikrId] || 0;
-      const newCount = currentCount >= maxCount ? 0 : currentCount + 1;
-      return { ...prev, [dhikrId]: newCount };
+      const currentState = prev[dhikrId] || { count: 0 };
+      const newCount = currentState.count + 1;
+
+      let newState: CounterState;
+      if (newCount >= maxCount) {
+        // Completed
+        newState = { count: newCount, completedAt: Date.now() };
+        Vibration.vibrate([0, 50, 100, 50]); // Victory vibration
+
+        // Auto-advance to next dhikr after a delay
+        setTimeout(() => {
+          if (dhikrIndex < adhkar.length - 1) {
+            setCurrentDhikrIndex(dhikrIndex + 1);
+          }
+        }, 1500);
+      } else {
+        newState = { count: newCount };
+        Vibration.vibrate(20); // Light tap feedback
+      }
+
+      const newCounters = { ...prev, [dhikrId]: newState };
+      saveCounters(newCounters);
+      return newCounters;
     });
   };
 
+  const resetAndAdvance = (dhikrId: string) => {
+    setCounters((prev) => {
+      const newCounters = { ...prev, [dhikrId]: { count: 0 } };
+      saveCounters(newCounters);
+      return newCounters;
+    });
+
+    // Find next incomplete dhikr
+    const currentIndex = adhkar.findIndex(d => d.id === dhikrId);
+    if (currentIndex < adhkar.length - 1) {
+      setCurrentDhikrIndex(currentIndex + 1);
+    }
+  };
+
   const resetCounter = (dhikrId: string) => {
-    setCounters((prev) => ({ ...prev, [dhikrId]: 0 }));
+    // Clear any pending reset timer
+    if (resetTimersRef.current[dhikrId]) {
+      clearTimeout(resetTimersRef.current[dhikrId]);
+      delete resetTimersRef.current[dhikrId];
+    }
+
+    setCounters((prev) => {
+      const newCounters = { ...prev, [dhikrId]: { count: 0 } };
+      saveCounters(newCounters);
+      return newCounters;
+    });
   };
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       {adhkar.map((dhikr: Dhikr, index: number) => {
-        const count = counters[dhikr.id] || 0;
+        const counterState = counters[dhikr.id] || { count: 0 };
+        const count = counterState.count;
         const isCompleted = count >= dhikr.repetitions;
+        const isCurrent = index === currentDhikrIndex;
 
         return (
           <View
@@ -101,12 +209,12 @@ export const AdkarDetailsScreen = () => {
             {/* Counter */}
             <View style={styles.counterContainer}>
               <View style={styles.counterInfo}>
-                <Text style={[styles.counterText, { color: colors.text }]}>
+                <Text style={[styles.counterText, { color: colors.text, fontSize: 32 }]}>
                   {count} / {dhikr.repetitions}
                 </Text>
                 {isCompleted && (
                   <Text style={[styles.completedText, { color: colors.success }]}>
-                    ✓ Completed
+                    ✓ Completed - Auto-reset in 10min
                   </Text>
                 )}
               </View>
@@ -124,20 +232,26 @@ export const AdkarDetailsScreen = () => {
                   </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[
-                    styles.counterButton,
-                    styles.countButton,
-                    { backgroundColor: colors.primary },
-                  ]}
-                  onPress={() =>
-                    incrementCounter(dhikr.id, dhikr.repetitions)
-                  }
-                >
-                  <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>
-                    Count
-                  </Text>
-                </TouchableOpacity>
+                {!isCompleted && (
+                  <TouchableOpacity
+                    style={[
+                      styles.largeTapButton,
+                      { backgroundColor: colors.primary },
+                      isCurrent && { backgroundColor: colors.primary, borderWidth: 3, borderColor: '#FFD700' },
+                    ]}
+                    onPress={() =>
+                      incrementCounter(dhikr.id, dhikr.repetitions, index)
+                    }
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.largeTapText, { color: '#FFFFFF' }]}>
+                      TAP TO COUNT
+                    </Text>
+                    <Text style={[styles.largeTapSubtext, { color: 'rgba(255,255,255,0.9)' }]}>
+                      {dhikr.repetitions - count} remaining
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>
@@ -214,8 +328,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  countButton: {
+  largeTapButton: {
     flex: 2,
+    paddingVertical: 28,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 80,
+  },
+  largeTapText: {
+    fontSize: 20,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  largeTapSubtext: {
+    fontSize: 14,
+    marginTop: 6,
+    fontWeight: '500',
   },
   buttonText: {
     ...Typography.button,

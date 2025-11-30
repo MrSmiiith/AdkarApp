@@ -19,6 +19,7 @@ import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Surah } from '../types';
 import { Icon } from '../components/common/Icon';
+import { getSurahPageInfo } from '../utils/quranPages';
 
 export const QuranScreen = () => {
   const navigation = useNavigation();
@@ -62,6 +63,7 @@ export const QuranScreen = () => {
 
   const renderSurah = ({ item }: { item: Surah }) => {
     const isLastRead = readingProgress?.surah === item.number;
+    const pageInfo = getSurahPageInfo(item.number);
 
     return (
       <TouchableOpacity
@@ -95,6 +97,16 @@ export const QuranScreen = () => {
           <Text style={[styles.revelationType, { color: colors.textSecondary }]}>
             {item.revelationType}
           </Text>
+          {pageInfo && (
+            <View style={styles.pageIndicator}>
+              <Icon name="book-open" size={10} color={colors.textSecondary} style={{ marginRight: 4 }} />
+              <Text style={[styles.pageText, { color: colors.textSecondary }]}>
+                {pageInfo.startPage === pageInfo.endPage
+                  ? `p.${pageInfo.startPage}`
+                  : `p.${pageInfo.startPage}-${pageInfo.endPage}`}
+              </Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -240,5 +252,14 @@ const styles = StyleSheet.create({
   },
   revelationType: {
     ...Typography.caption,
+  },
+  pageIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  pageText: {
+    fontSize: 10,
+    fontWeight: '500',
   },
 });

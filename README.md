@@ -44,13 +44,6 @@ Built with React Native | Created by MrSmith
 - References from Quran and Hadith
 - Benefits of each supplication
 
-### 🧭 Qibla Finder
-- **Real-time compass** pointing to Kaaba
-- **Distance to Makkah** in kilometers
-- Uses device magnetometer and GPS
-- Smooth, accurate direction indicator
-- Works offline (after initial location permission)
-
 ### 🎨 Additional Features
 - **Dark mode** support
 - **Offline-first** - works without internet
@@ -111,9 +104,8 @@ Built with React Native | Created by MrSmith
 - **Hisnul Muslim** - Authentic adkar database
 
 ### Device Features
-- **expo-location** - GPS for Qibla direction
-- **expo-sensors** - Magnetometer for compass
-- **expo-font** - Custom Arabic fonts
+- **expo-location** - GPS for prayer times
+- **expo-font** - Custom Arabic fonts (Cairo)
 
 ### Utilities
 - **date-fns** - Date manipulation
@@ -132,9 +124,10 @@ AdkarApp/
 │   ├── screens/           # Screen components
 │   │   ├── HomeScreen.tsx
 │   │   ├── QuranScreen.tsx
+│   │   ├── QuranReaderScreen.tsx
 │   │   ├── AdkarScreen.tsx
 │   │   ├── AdkarDetailsScreen.tsx
-│   │   └── QiblaScreen.tsx
+│   │   └── SettingsScreen.tsx
 │   ├── navigation/        # Navigation setup
 │   ├── store/             # Zustand stores
 │   ├── services/          # API and business logic
@@ -178,24 +171,28 @@ All APIs have been tested before implementation:
 
 ## 🎯 Roadmap
 
-### MVP (Current)
-- ✅ Prayer times with notifications
-- ✅ Quran reader with translations
-- ✅ Adkar with counter
-- ✅ Qibla finder
-- ✅ Dark mode
+### v1.0.0 (Current)
+- ✅ Prayer times display
+- ✅ Quran reader with bookmarks and reading progress
+- ✅ Adkar (5 categories with authentic supplications)
+- ✅ Settings (theme and language)
+- ✅ Dark mode support
 - ✅ Offline support
 
-### Future Features
+### v1.1.0 (Planned)
+- [ ] **Qibla Finder** - Compass with real-time magnetometer
+- [ ] Prayer time notifications with Adhan
 - [ ] Audio Quran recitations with verse highlighting
-- [ ] More translations and tafsir
-- [ ] Spaced repetition system for memorization
-- [ ] Prayer statistics and insights
-- [ ] Hijri calendar
-- [ ] Nearby mosques finder
-- [ ] Community features (anonymous progress sharing)
-- [ ] Widget support
-- [ ] Apple Watch / Wear OS app
+- [ ] Multiple Quran translations
+- [ ] Quran page view (Mushaf-style)
+
+### v1.2.0 & Beyond
+See [FEATURES.md](FEATURES.md) for complete roadmap including:
+- Tasbih counter
+- Hadith collections
+- Ramadan features
+- Islamic library
+- And much more!
 
 ## 🤝 Contributing
 

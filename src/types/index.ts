@@ -35,6 +35,7 @@ export interface Ayah {
   number: number;
   numberInSurah: number;
   text: string;
+  translation?: string;
   surah: number;
   juz: number;
   page: number;

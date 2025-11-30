@@ -1,10 +1,11 @@
 import axios from 'axios';
-import { Config } from '../constants/config';
 import { Surah, Ayah, Translation } from '../types';
 
+// QuranJSON repository base URL
+const QURANJSON_BASE_URL = 'https://raw.githubusercontent.com/semarketir/quranjson/master/source';
+
 const api = axios.create({
-  baseURL: Config.api.quran,
-  timeout: Config.api.timeout,
+  timeout: 15000,
 });
 
 /**
@@ -12,7 +13,6 @@ const api = axios.create({
  */
 export const fetchAllSurahs = async (): Promise<Surah[]> => {
   try {
-    // Using local data for MVP - can be replaced with API call
     return SURAHS_DATA;
   } catch (error) {
     console.error('Error fetching surahs:', error);
@@ -21,33 +21,50 @@ export const fetchAllSurahs = async (): Promise<Surah[]> => {
 };
 
 /**
- * Fetch a specific Surah with verses
+ * Fetch a specific Surah with verses and translation from QuranJSON
  */
 export const fetchSurah = async (
   surahNumber: number,
-  edition: string = 'quran-uthmani'
+  translationLang: string = 'en'
 ): Promise<{ surah: Surah; ayahs: Ayah[] }> => {
   try {
-    const response = await api.get(`/surah/${surahNumber}/${edition}`);
-    const data = response.data.data;
+    // Format surah number with leading zeros (e.g., 1 -> 001)
+    const formattedNumber = surahNumber.toString().padStart(3, '0');
+
+    // Fetch Arabic text
+    const arabicUrl = `${QURANJSON_BASE_URL}/surah/surah_${surahNumber}.json`;
+    const arabicResponse = await api.get(arabicUrl);
+    const arabicData = arabicResponse.data;
+
+    // Fetch English translation
+    const translationUrl = `${QURANJSON_BASE_URL}/translation/${translationLang}/${translationLang}_translation_${surahNumber}.json`;
+    const translationResponse = await api.get(translationUrl);
+    const translationData = translationResponse.data;
+
+    // Get surah metadata
+    const surahMeta = SURAHS_DATA.find(s => s.number === surahNumber);
+    if (!surahMeta) {
+      throw new Error(`Surah ${surahNumber} not found in metadata`);
+    }
+
+    // Combine Arabic text with translations
+    const ayahs: Ayah[] = [];
+    for (let i = 1; i <= surahMeta.numberOfAyahs; i++) {
+      const verseKey = `verse_${i}`;
+      ayahs.push({
+        number: i, // global number
+        numberInSurah: i,
+        text: arabicData.verse[verseKey] || '',
+        translation: translationData.verse[verseKey] || '',
+        surah: surahNumber,
+        juz: arabicData.juz?.[0]?.index || 1, // simplified
+        page: 1, // will be calculated based on our quranPages.ts
+      });
+    }
 
     return {
-      surah: {
-        number: data.number,
-        name: data.name,
-        englishName: data.englishName,
-        englishNameTranslation: data.englishNameTranslation,
-        revelationType: data.revelationType,
-        numberOfAyahs: data.numberOfAyahs,
-      },
-      ayahs: data.ayahs.map((ayah: any) => ({
-        number: ayah.number,
-        numberInSurah: ayah.numberInSurah,
-        text: ayah.text,
-        surah: data.number,
-        juz: ayah.juz,
-        page: ayah.page,
-      })),
+      surah: surahMeta,
+      ayahs,
     };
   } catch (error) {
     console.error(`Error fetching surah ${surahNumber}:`, error);
@@ -61,25 +78,22 @@ export const fetchSurah = async (
 export const fetchVerseWithTranslation = async (
   surah: number,
   ayah: number,
-  translationEdition: string = 'en.sahih'
+  translationLang: string = 'en'
 ): Promise<{ arabic: Ayah; translation: Translation }> => {
   try {
-    const response = await api.get(`/ayah/${surah}:${ayah}/editions/quran-uthmani,${translationEdition}`);
-    const data = response.data.data;
+    const surahData = await fetchSurah(surah, translationLang);
+    const verse = surahData.ayahs.find(a => a.numberInSurah === ayah);
+
+    if (!verse) {
+      throw new Error(`Verse ${surah}:${ayah} not found`);
+    }
 
     return {
-      arabic: {
-        number: data[0].number,
-        numberInSurah: data[0].numberInSurah,
-        text: data[0].text,
-        surah: data[0].surah.number,
-        juz: data[0].juz,
-        page: data[0].page,
-      },
+      arabic: verse,
       translation: {
-        text: data[1].text,
-        edition: translationEdition,
-        language: 'en',
+        text: verse.translation || '',
+        edition: translationLang,
+        language: translationLang,
       },
     };
   } catch (error) {

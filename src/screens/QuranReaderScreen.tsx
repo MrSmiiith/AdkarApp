@@ -18,6 +18,7 @@ import { getThemeColors } from '../utils/themeHelpers';
 import { Typography } from '../constants/typography';
 import { Surah, Ayah, RootStackParamList } from '../types';
 import { Icon } from '../components/common/Icon';
+import { getSurahPageInfo, getJuzName } from '../utils/quranPages';
 
 type QuranReaderRouteProp = RouteProp<RootStackParamList, 'QuranReader'>;
 
@@ -36,6 +37,10 @@ export const QuranReaderScreen = () => {
   const [error, setError] = useState<string | null>(null);
 
   const surahNumber = route.params?.surah || 1;
+
+  // Get page information for this Surah
+  const pageInfo = getSurahPageInfo(surahNumber);
+  const juzName = pageInfo ? getJuzName(pageInfo.juz) : '';
 
   // Check if surah is bookmarked
   const isBookmarked = bookmarks.some((b) => b.surah === surahNumber);
@@ -144,6 +149,13 @@ export const QuranReaderScreen = () => {
           <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             {surah.englishNameTranslation} • {surah.numberOfAyahs} {t('verses')}
           </Text>
+          {pageInfo && (
+            <Text style={[styles.headerPageInfo, { color: colors.textSecondary }]}>
+              {pageInfo.startPage === pageInfo.endPage
+                ? `Page ${pageInfo.startPage}`
+                : `Pages ${pageInfo.startPage}-${pageInfo.endPage}`} • {juzName}
+            </Text>
+          )}
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerIcon} onPress={toggleBookmark}>
@@ -167,12 +179,24 @@ export const QuranReaderScreen = () => {
           <Text style={styles.surahInfo}>
             {surah.revelationType} • {surah.numberOfAyahs} Verses
           </Text>
+          {pageInfo && (
+            <View style={styles.pageInfoBadge}>
+              <Icon name="book-open" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.pageInfoText}>
+                {pageInfo.startPage === pageInfo.endPage
+                  ? `Page ${pageInfo.startPage}`
+                  : `Pages ${pageInfo.startPage}-${pageInfo.endPage}`}
+              </Text>
+              <Text style={styles.pageInfoDivider}>•</Text>
+              <Text style={styles.pageInfoText}>Juz {pageInfo.juz}</Text>
+            </View>
+          )}
         </View>
 
         {/* Bismillah (except for Surah At-Tawba) */}
         {surahNumber !== 9 && (
           <View style={[styles.bismillahContainer, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.bismillahText, { color: colors.text, fontSize: fontSize + 4 }]}>
+            <Text style={[styles.bismillahText, { color: colors.text, fontSize: fontSize + 8, fontFamily: 'Scheherazade-Bold' }]}>
               بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
             </Text>
           </View>
@@ -192,11 +216,26 @@ export const QuranReaderScreen = () => {
             <Text
               style={[
                 styles.ayahText,
-                { color: colors.text, fontSize: fontSize + 6, lineHeight: (fontSize + 6) * 1.8 }
+                {
+                  color: colors.text,
+                  fontSize: fontSize + 8,
+                  lineHeight: (fontSize + 8) * 2,
+                  fontFamily: 'Scheherazade-Regular',
+                }
               ]}
             >
               {ayah.text}
             </Text>
+            {ayah.translation && (
+              <Text
+                style={[
+                  styles.translationText,
+                  { color: colors.textSecondary, fontSize: fontSize, lineHeight: fontSize * 1.6 }
+                ]}
+              >
+                {ayah.translation}
+              </Text>
+            )}
             <View style={styles.ayahActions}>
               <TouchableOpacity
                 style={styles.ayahAction}
@@ -277,6 +316,11 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     ...Typography.caption,
   },
+  headerPageInfo: {
+    ...Typography.caption,
+    fontSize: 11,
+    marginTop: 2,
+  },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -307,6 +351,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.9)',
     fontWeight: '500',
+  },
+  pageInfoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+  },
+  pageInfoText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  pageInfoDivider: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    marginHorizontal: 8,
   },
   bismillahContainer: {
     padding: 20,
@@ -340,6 +403,12 @@ const styles = StyleSheet.create({
   ayahText: {
     textAlign: 'right',
     fontWeight: '500',
+    marginBottom: 12,
+  },
+  translationText: {
+    textAlign: 'left',
+    fontStyle: 'italic',
+    marginTop: 8,
     marginBottom: 12,
   },
   ayahActions: {
