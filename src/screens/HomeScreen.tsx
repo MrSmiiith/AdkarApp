@@ -125,18 +125,6 @@ export const HomeScreen = () => {
             colors={colors}
           />
 
-          {/* Qibla Card */}
-          <FeatureCard
-            title={t('findQibla')}
-            description={t('findQiblaDesc')}
-            iconName="compass"
-            gradient={['#0077B6', '#00B4D8']}
-            onPress={() => {
-              // @ts-ignore
-              navigation.navigate('Qibla');
-            }}
-            colors={colors}
-          />
 
           {/* Next Prayer Card */}
           {nextPrayer && (
