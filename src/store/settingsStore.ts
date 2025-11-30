@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppSettings } from '../types';
+import { AppSettings, PrayerName } from '../types';
 import { Config } from '../constants/config';
 
 interface SettingsState extends AppSettings {
@@ -12,6 +12,7 @@ interface SettingsState extends AppSettings {
   setSelectedTranslation: (translation: string) => void;
   updatePrayerSettings: (settings: Partial<AppSettings['prayerSettings']>) => void;
   toggleNotification: (type: keyof AppSettings['notifications']) => void;
+  togglePrayerNotification: (prayer: PrayerName) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -58,6 +59,16 @@ export const useSettingsStore = create<SettingsState>()(
           notifications: {
             ...state.notifications,
             [type]: !state.notifications[type],
+          },
+        })),
+      togglePrayerNotification: (prayer) =>
+        set((state) => ({
+          prayerSettings: {
+            ...state.prayerSettings,
+            notifications: {
+              ...state.prayerSettings.notifications,
+              [prayer]: !state.prayerSettings.notifications[prayer],
+            },
           },
         })),
     }),

@@ -44,8 +44,30 @@ Built with React Native | Created by MrSmith
 - References from Quran and Hadith
 - Benefits of each supplication
 
+### 🧭 Qibla Finder
+- **Real-time compass** using device magnetometer
+- Accurate Qibla direction calculation based on GPS
+- Distance to Kaaba display
+- **Haptic feedback** when aligned with Qibla
+- **Green visual feedback** - glowing effect when perfectly aligned
+- Visual indicator with Kaaba icon
+- Works in both light and dark modes
+- Full Arabic/English translation support
+- Instant restart when switching between pages
+
+### 🔔 Prayer Time Notifications
+- **Automatic notifications** at each prayer time
+- Support for custom **Adhan sounds** (MP3/WAV)
+- Individual prayer toggles (Fajr, Dhuhr, Asr, Maghrib, Isha)
+- **Bilingual notifications** - Arabic and English
+- Auto-schedule daily at midnight
+- Works even when app is closed
+- Permission management in Settings
+- Customizable per-prayer notification settings
+
 ### 🎨 Additional Features
 - **Dark mode** support
+- **Bilingual** - English and Arabic
 - **Offline-first** - works without internet
 - Clean, modern UI/UX
 - RTL (Right-to-Left) support for Arabic
@@ -104,8 +126,11 @@ Built with React Native | Created by MrSmith
 - **Hisnul Muslim** - Authentic adkar database
 
 ### Device Features
-- **expo-location** - GPS for prayer times
+- **expo-location** - GPS for prayer times and Qibla direction
+- **expo-sensors** - Magnetometer for Qibla compass
+- **expo-haptics** - Haptic feedback
 - **expo-font** - Custom Arabic fonts (Cairo)
+- **react-native-svg** - SVG icon support
 
 ### Utilities
 - **date-fns** - Date manipulation
@@ -127,6 +152,8 @@ AdkarApp/
 │   │   ├── QuranReaderScreen.tsx
 │   │   ├── AdkarScreen.tsx
 │   │   ├── AdkarDetailsScreen.tsx
+│   │   ├── QiblaFinderScreen.tsx
+│   │   ├── PrayerTimesScreen.tsx
 │   │   └── SettingsScreen.tsx
 │   ├── navigation/        # Navigation setup
 │   ├── store/             # Zustand stores
@@ -171,19 +198,20 @@ All APIs have been tested before implementation:
 
 ## 🎯 Roadmap
 
-### v1.0.0 (Current)
-- ✅ Prayer times display
+### v1.0.0 ✅ RELEASED
+- ✅ Prayer times display with multiple calculation methods
 - ✅ Quran reader with bookmarks and reading progress
-- ✅ Adkar (5 categories with authentic supplications)
+- ✅ Adkar (5 categories with 50+ authentic supplications)
 - ✅ Settings (theme and language)
 - ✅ Dark mode support
 - ✅ Offline support
+- ✅ **Qibla Finder** with real-time compass and haptic feedback
+- ✅ **Prayer time notifications** with Adhan sound support
+- ✅ Bilingual support (English & Arabic)
 
-### v1.1.0 (Planned)
-- [ ] **Qibla Finder** - Compass with real-time magnetometer
-- [ ] Prayer time notifications with Adhan
+### v1.1.0 (In Progress 🚧)
 - [ ] Audio Quran recitations with verse highlighting
-- [ ] Multiple Quran translations
+- [ ] Multiple Quran translations (10+ languages)
 - [ ] Quran page view (Mushaf-style)
 
 ### v1.2.0 & Beyond

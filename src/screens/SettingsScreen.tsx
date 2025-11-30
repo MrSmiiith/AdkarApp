@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   useColorScheme,
+  Switch,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSettingsStore } from '../store/settingsStore';
@@ -13,9 +15,24 @@ import { useTranslation } from '../hooks/useTranslation';
 import { getThemeColors } from '../utils/themeHelpers';
 import { Typography } from '../constants/typography';
 import { Icon } from '../components/common/Icon';
+import { PrayerName } from '../types';
+import {
+  requestNotificationPermissions,
+  areNotificationsEnabled,
+} from '../services/notificationService';
 
 export const SettingsScreen = () => {
-  const { theme, language, setTheme, setLanguage } = useSettingsStore();
+  const {
+    theme,
+    language,
+    setTheme,
+    setLanguage,
+    notifications,
+    toggleNotification,
+    togglePrayerNotification,
+    prayerSettings,
+  } = useSettingsStore();
+  const [hasPermission, setHasPermission] = useState(false);
   const { t } = useTranslation();
   const systemTheme = useColorScheme();
   const colors = getThemeColors(theme, systemTheme);
@@ -30,6 +47,52 @@ export const SettingsScreen = () => {
     { value: 'en', label: t('english') },
     { value: 'ar', label: t('arabic') },
   ];
+
+  const prayerOptions: Array<{ name: PrayerName; label: string }> = [
+    { name: 'fajr', label: t('fajr') },
+    { name: 'dhuhr', label: t('dhuhr') },
+    { name: 'asr', label: t('asr') },
+    { name: 'maghrib', label: t('maghrib') },
+    { name: 'isha', label: t('isha') },
+  ];
+
+  // Check notification permission on mount
+  useEffect(() => {
+    async function checkPermission() {
+      const enabled = await areNotificationsEnabled();
+      setHasPermission(enabled);
+    }
+    checkPermission();
+  }, []);
+
+  const handleRequestPermission = async () => {
+    const granted = await requestNotificationPermissions();
+    setHasPermission(granted);
+
+    if (granted) {
+      Alert.alert(
+        language === 'ar' ? 'تم منح الإذن' : 'Permission Granted',
+        language === 'ar'
+          ? 'يمكنك الآن تلقي إشعارات الصلاة'
+          : 'You can now receive prayer notifications'
+      );
+    } else {
+      Alert.alert(
+        language === 'ar' ? 'تم الرفض' : 'Permission Denied',
+        language === 'ar'
+          ? 'يرجى تفعيل الإشعارات من الإعدادات'
+          : 'Please enable notifications in settings'
+      );
+    }
+  };
+
+  const handleTogglePrayerNotifications = () => {
+    if (!hasPermission) {
+      handleRequestPermission();
+      return;
+    }
+    toggleNotification('prayers');
+  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
@@ -120,6 +183,90 @@ export const SettingsScreen = () => {
                 )}
               </TouchableOpacity>
             ))}
+          </View>
+        </View>
+
+        {/* Notifications Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            {t('notifications')}
+          </Text>
+
+          {/* Permission Warning */}
+          {!hasPermission && (
+            <TouchableOpacity
+              style={[styles.permissionCard, { backgroundColor: colors.warning + '15', borderColor: colors.warning }]}
+              onPress={handleRequestPermission}
+            >
+              <Icon name="bell" size={24} color={colors.warning} />
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Text style={[styles.permissionTitle, { color: colors.text }]}>
+                  {t('notificationPermission')}
+                </Text>
+                <Text style={[styles.permissionDesc, { color: colors.textSecondary }]}>
+                  {t('notificationPermissionDesc')}
+                </Text>
+              </View>
+              <Icon name="chevron-right" size={20} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+
+          {/* Prayer Notifications */}
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
+            <View style={styles.optionRow}>
+              <View style={styles.optionLeft}>
+                <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
+                  <Icon name="bell" size={22} color={colors.primary} />
+                </View>
+                <View>
+                  <Text style={[styles.optionLabel, { color: colors.text }]}>
+                    {t('prayerNotifications')}
+                  </Text>
+                  <Text style={[styles.optionSubtitle, { color: colors.textSecondary }]}>
+                    {t('prayerNotificationsDesc')}
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={notifications.prayers}
+                onValueChange={handleTogglePrayerNotifications}
+                trackColor={{ false: colors.border, true: colors.primary + '50' }}
+                thumbColor={notifications.prayers ? colors.primary : colors.surface}
+              />
+            </View>
+
+            {/* Individual Prayer Toggles */}
+            {notifications.prayers && hasPermission && (
+              <View style={[styles.prayerToggles, { borderTopColor: colors.border }]}>
+                <Text style={[styles.prayerTogglesTitle, { color: colors.textSecondary }]}>
+                  {t('enableForPrayers')}
+                </Text>
+                {prayerOptions.map((prayer, index) => (
+                  <View
+                    key={prayer.name}
+                    style={[
+                      styles.prayerToggleRow,
+                      index < prayerOptions.length - 1 && {
+                        borderBottomWidth: StyleSheet.hairlineWidth,
+                        borderBottomColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.prayerToggleLabel, { color: colors.text }]}>
+                      {prayer.label}
+                    </Text>
+                    <Switch
+                      value={prayerSettings.notifications[prayer.name]}
+                      onValueChange={() => togglePrayerNotification(prayer.name)}
+                      trackColor={{ false: colors.border, true: colors.primary + '50' }}
+                      thumbColor={
+                        prayerSettings.notifications[prayer.name] ? colors.primary : colors.surface
+                      }
+                    />
+                  </View>
+                ))}
+              </View>
+            )}
           </View>
         </View>
 
@@ -251,5 +398,42 @@ const styles = StyleSheet.create({
   footerSubtext: {
     ...Typography.caption,
     textAlign: 'center',
+  },
+  permissionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  permissionTitle: {
+    ...Typography.bodyLarge,
+    fontFamily: 'Cairo-SemiBold',
+    marginBottom: 4,
+  },
+  permissionDesc: {
+    ...Typography.caption,
+  },
+  prayerToggles: {
+    borderTopWidth: 1,
+    paddingTop: 12,
+    marginTop: 8,
+  },
+  prayerTogglesTitle: {
+    ...Typography.caption,
+    textTransform: 'uppercase',
+    marginBottom: 12,
+    marginLeft: 16,
+  },
+  prayerToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  prayerToggleLabel: {
+    ...Typography.body,
   },
 });

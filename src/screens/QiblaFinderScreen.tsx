@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Magnetometer } from 'expo-sensors';
 import * as Haptics from 'expo-haptics';
@@ -47,7 +48,10 @@ export const QiblaFinderScreen = () => {
 
   // Magnetometer subscription
   const magnetometerSubscription = useRef<any>(null);
+  const isInitialized = useRef<boolean>(false);
+  const lastAlignmentCheck = useRef<boolean>(false);
 
+  // Initialize once on mount (get location)
   useEffect(() => {
     initializeQiblaFinder();
 
@@ -56,13 +60,45 @@ export const QiblaFinderScreen = () => {
       duration: 600,
       useNativeDriver: true,
     }).start();
-
-    return () => {
-      if (magnetometerSubscription.current) {
-        magnetometerSubscription.current.remove();
-      }
-    };
   }, []);
+
+  // Start/Stop magnetometer based on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      // Screen is focused
+      if (isInitialized.current && qiblaDirection > 0) {
+        // Already initialized, just restart magnetometer
+        startMagnetometer(qiblaDirection);
+      }
+
+      return () => {
+        // Screen is unfocused (navigating away)
+        stopMagnetometer();
+      };
+    }, [qiblaDirection])
+  );
+
+  const startMagnetometer = (qibla: number) => {
+    if (magnetometerSubscription.current) {
+      return; // Already running
+    }
+
+    Magnetometer.setUpdateInterval(100);
+    magnetometerSubscription.current = Magnetometer.addListener((data: MagnetometerData) => {
+      const heading = calculateHeading(data);
+      setCompassHeading(heading);
+      animateRotation(heading, qibla);
+    });
+  };
+
+  const stopMagnetometer = () => {
+    if (magnetometerSubscription.current) {
+      magnetometerSubscription.current.remove();
+      magnetometerSubscription.current = null;
+      setIsAligned(false); // Reset alignment state
+      lastAlignmentCheck.current = false; // Reset alignment tracking
+    }
+  };
 
   const initializeQiblaFinder = async () => {
     try {
@@ -82,9 +118,9 @@ export const QiblaFinderScreen = () => {
         return;
       }
 
-      // Get location
+      // Get location (this is the slow part)
       const currentLocation = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
+        accuracy: Location.Accuracy.Balanced, // Changed from High to Balanced for faster results
       });
 
       const coords: Coordinates = {
@@ -101,13 +137,11 @@ export const QiblaFinderScreen = () => {
       setQiblaDirection(qibla);
       setDistance(dist);
 
+      // Mark as initialized
+      isInitialized.current = true;
+
       // Start magnetometer
-      Magnetometer.setUpdateInterval(100);
-      magnetometerSubscription.current = Magnetometer.addListener((data: MagnetometerData) => {
-        const heading = calculateHeading(data);
-        setCompassHeading(heading);
-        animateRotation(heading, qibla);
-      });
+      startMagnetometer(qibla);
 
       setIsLoading(false);
     } catch (err) {
@@ -135,15 +169,22 @@ export const QiblaFinderScreen = () => {
       useNativeDriver: true,
     }).start();
 
-    // Check alignment
+    // Check alignment - Calculate difference in degrees
     const diff = Math.abs(((heading - qibla + 180) % 360) - 180);
-    if (diff <= 10) {
-      if (!isAligned) {
+    const shouldBeAligned = diff <= 10;
+
+    // Update alignment state whenever it changes
+    if (shouldBeAligned !== lastAlignmentCheck.current) {
+      lastAlignmentCheck.current = shouldBeAligned;
+
+      if (shouldBeAligned) {
+        // Becoming aligned - trigger haptic feedback
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         setIsAligned(true);
+      } else {
+        // Becoming unaligned - remove green effect
+        setIsAligned(false);
       }
-    } else {
-      if (isAligned) setIsAligned(false);
     }
   };
 
@@ -187,8 +228,30 @@ export const QiblaFinderScreen = () => {
 
         {/* Main Arrow Container */}
         <View style={styles.arrowContainer}>
+          {/* Green Glow Effect when Aligned */}
+          {isAligned && (
+            <View
+              style={[
+                styles.alignedGlow,
+                {
+                  shadowColor: colors.success,
+                  backgroundColor: colors.success + '20',
+                  borderColor: colors.success,
+                },
+              ]}
+            />
+          )}
+
           {/* Compass Circle Background */}
-          <View style={[styles.compassCircle, { borderColor: colors.border }]}>
+          <View
+            style={[
+              styles.compassCircle,
+              {
+                borderColor: isAligned ? colors.success : colors.border,
+                borderWidth: isAligned ? 3 : 2,
+              },
+            ]}
+          >
             {/* Degree markers */}
             {[0, 90, 180, 270].map((deg) => (
               <View
@@ -222,20 +285,40 @@ export const QiblaFinderScreen = () => {
             ]}
           >
             {/* Arrow Head */}
-            <View style={[styles.arrowHead, { borderBottomColor: colors.primary }]} />
+            <View
+              style={[
+                styles.arrowHead,
+                { borderBottomColor: isAligned ? colors.success : colors.primary },
+              ]}
+            />
 
             {/* Arrow Body */}
-            <View style={[styles.arrowBody, { backgroundColor: colors.primary }]} />
+            <View
+              style={[
+                styles.arrowBody,
+                { backgroundColor: isAligned ? colors.success : colors.primary },
+              ]}
+            />
 
             {/* Kaaba Icon at bottom of arrow */}
-            <View style={[styles.kaabaIcon, { backgroundColor: colors.primary }]}>
+            <View
+              style={[
+                styles.kaabaIcon,
+                { backgroundColor: isAligned ? colors.success : colors.primary },
+              ]}
+            >
               <KaabaIcon size={36} color="#FFFFFF" />
               <Text style={styles.kaabaLabel}>{t('kaaba')}</Text>
             </View>
           </Animated.View>
 
           {/* Center Dot */}
-          <View style={[styles.centerCircle, { backgroundColor: colors.primary }]} />
+          <View
+            style={[
+              styles.centerCircle,
+              { backgroundColor: isAligned ? colors.success : colors.primary },
+            ]}
+          />
         </View>
 
         {/* Qibla Info */}
@@ -332,6 +415,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 30,
+  },
+  alignedGlow: {
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    position: 'absolute',
+    borderWidth: 4,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 10,
   },
   compassCircle: {
     width: 260,

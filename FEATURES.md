@@ -1,34 +1,40 @@
-# 🚀 Future Features & Roadmap
+# 🚀 Features & Roadmap
 
-This document outlines planned features and improvements for the Adkar App.
+This document outlines completed features and planned improvements for the Adkar App.
 
-## 📋 Planned Features
+## ✅ Completed Features
 
-### 🧭 Qibla Finder (Priority: High)
-**Status:** Planned for v1.1.0
+### 🧭 Qibla Finder
+**Status:** ✅ Completed in v1.0.0
 
 A comprehensive Qibla compass to help Muslims find the direction of prayer.
 
-**Features:**
-- Real-time compass using device magnetometer
-- Accurate Qibla calculation based on GPS location
-- Smooth rotation with no jitter/shake
-- Distance to Kaaba display
-- Visual alignment indicator
-- Manual location input for emulator testing
-- Support for different compass modes:
-  - Fixed arrow (arrow always points to Qibla)
-  - Rotating compass (traditional compass view)
-- Calibration instructions
-- Works offline after initial location fetch
+**Implemented Features:**
+- ✅ Real-time compass using device magnetometer
+- ✅ Accurate Qibla calculation based on GPS location
+- ✅ Smooth rotation animations (100ms update interval)
+- ✅ Distance to Kaaba display (in km)
+- ✅ Haptic feedback when aligned with Qibla (±10° tolerance)
+- ✅ Visual alignment indicator with badge
+- ✅ Current heading display
+- ✅ Simple arrow design pointing to Qibla
+- ✅ Kaaba icon from FontAwesome
+- ✅ Bilingual support (English & Arabic)
+- ✅ Works in both light and dark modes
+- ✅ Works offline after initial location fetch
 
-**Technical Requirements:**
-- Expo Sensors (Magnetometer)
-- Expo Location (GPS)
-- Spherical geometry calculations
-- Smooth animation with exponential moving average filter
+**Technical Implementation:**
+- Expo Sensors (Magnetometer) with 100ms updates
+- Expo Location (GPS) for accurate positioning
+- Expo Haptics for feedback
+- React Native SVG for Kaaba icon
+- Spherical geometry calculations for Qibla direction
+- Animated API for smooth rotations
+- iOS compass behavior matching (0° = North)
 
 ---
+
+## 📋 Planned Features
 
 ### 📿 Tasbih Counter (Priority: Medium)
 **Status:** Planned for v1.2.0
@@ -64,17 +70,22 @@ Digital prayer beads counter for Dhikr.
 ---
 
 ### 🕌 Prayer Times Enhancements (Priority: High)
-**Status:** Planned for v1.1.0
+**Status:** ✅ Notifications Completed - Additional features planned for v1.1.0+
+
+**Completed Features:**
+- ✅ Prayer time notifications with Adhan support
+- ✅ Multiple Adhan sounds support (MP3/WAV)
+- ✅ Individual prayer notification toggles
+- ✅ Bilingual notifications (Arabic/English)
+- ✅ Auto-scheduling and permission management
 
 **Features to Add:**
-- Prayer time notifications with Adhan
-- Multiple Adhan sounds to choose from
-- Prayer times widget for home screen
-- Monthly prayer times calendar
-- Mosque finder nearby
-- Qiyam al-Layl reminder
-- Salah tracking (mark prayers as completed)
-- Prayer statistics and streaks
+- [ ] Prayer times widget for home screen
+- [ ] Monthly prayer times calendar
+- [ ] Mosque finder nearby
+- [ ] Qiyam al-Layl reminder
+- [ ] Salah tracking (mark prayers as completed)
+- [ ] Prayer statistics and streaks
 
 ---
 
@@ -173,11 +184,22 @@ Digital prayer beads counter for Dhikr.
 
 ## 🎯 Version Roadmap
 
-### v1.1.0 (Next Release)
-- ✅ Qibla Finder
-- ✅ Prayer time notifications
-- ✅ Audio Quran recitation
-- ✅ Multiple translations
+### v1.0.0 ✅ RELEASED
+- ✅ Prayer times display with multiple calculation methods
+- ✅ Quran reader with bookmarks and reading progress
+- ✅ Adkar (5 categories with 50+ authentic supplications)
+- ✅ Settings (theme and language)
+- ✅ Dark mode support
+- ✅ Offline support
+- ✅ **Qibla Finder** with real-time compass and haptic feedback
+- ✅ **Prayer time notifications** with Adhan sound support
+- ✅ Bilingual support (English & Arabic)
+
+### v1.1.0 (Planned)
+- [ ] Audio Quran recitations with verse highlighting
+- [ ] Multiple Quran translations (10+ languages)
+- [ ] Quran page view (Mushaf-style)
+- [ ] Prayer times widget for home screen
 
 ### v1.2.0
 - Tasbih counter
@@ -213,10 +235,10 @@ Have an idea? Please open an issue on GitHub or contribute to the project!
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Priority Areas:**
-- Qibla finder implementation
-- Audio recitation integration
-- Prayer time notifications
-- Translations to other languages
+- Audio recitation integration (Next Focus)
+- Multiple Quran translations
+- Quran page view (Mushaf-style)
+- Additional language support
 
 ---
 

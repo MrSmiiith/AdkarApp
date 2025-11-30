@@ -59,6 +59,14 @@ export const translations = {
     openSource: 'Open Source',
     madeLove: 'Made with ❤ for the Muslim Ummah',
 
+    // Notifications
+    notifications: 'Notifications',
+    prayerNotifications: 'Prayer Time Notifications',
+    prayerNotificationsDesc: 'Get notified at prayer times',
+    enableForPrayers: 'Enable for prayers',
+    notificationPermission: 'Grant Permission',
+    notificationPermissionDesc: 'Allow notifications to receive prayer reminders',
+
     // Qibla Screen
     qiblaFinder: 'Qibla Finder',
     qiblaDirection: 'Qibla Direction',
@@ -133,6 +141,14 @@ export const translations = {
     createdBy: 'تم إنشاؤه بواسطة',
     openSource: 'مفتوح المصدر',
     madeLove: 'صُنع بحب للأمة الإسلامية',
+
+    // Notifications
+    notifications: 'الإشعارات',
+    prayerNotifications: 'إشعارات أوقات الصلاة',
+    prayerNotificationsDesc: 'احصل على تنبيهات في أوقات الصلاة',
+    enableForPrayers: 'تفعيل لصلوات',
+    notificationPermission: 'منح الإذن',
+    notificationPermissionDesc: 'السماح بالإشعارات لتلقي تذكيرات الصلاة',
 
     // Qibla Screen
     qiblaFinder: 'محدد القبلة',
