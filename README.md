@@ -12,6 +12,61 @@ Built with React Native | Created by MrSmith
 
 </div>
 
+## 📸 Screenshots
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="pics/home-main.png" alt="Home Screen" width="250"/>
+        <br />
+        <sub><b>Home Screen</b></sub>
+      </td>
+      <td align="center">
+        <img src="pics/home-second.png" alt="Home Screen - Prayer Times" width="250"/>
+        <br />
+        <sub><b>Prayer Times</b></sub>
+      </td>
+      <td align="center">
+        <img src="pics/quran-main.png" alt="Quran Screen" width="250"/>
+        <br />
+        <sub><b>Quran Reader</b></sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="pics/adkar-main.png" alt="Adkar Categories" width="250"/>
+        <br />
+        <sub><b>Adkar Categories</b></sub>
+      </td>
+      <td align="center">
+        <img src="pics/adkar-detials.png" alt="Adkar Details" width="250"/>
+        <br />
+        <sub><b>Adkar Details</b></sub>
+      </td>
+      <td align="center">
+        <img src="pics/qibla-main.png" alt="Qibla Finder" width="250"/>
+        <br />
+        <sub><b>Qibla Finder</b></sub>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="pics/settings-main.png" alt="Settings" width="250"/>
+        <br />
+        <sub><b>Settings</b></sub>
+      </td>
+      <td align="center">
+        <img src="pics/settings-second.png" alt="Settings - Notifications" width="250"/>
+        <br />
+        <sub><b>Notification Settings</b></sub>
+      </td>
+      <td align="center">
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## 📱 Features
 
 ### 🕌 Prayer Times
